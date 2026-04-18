@@ -2,390 +2,305 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إتقان الاحترافي | إدارة الحلقات</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إتقان Pro | تطبيق الإدارة الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #0f4c75;
             --secondary: #3282b8;
             --accent: #00b894;
             --gold: #f1c40f;
-            --bg: #f4f7f6;
-            --glass: rgba(255, 255, 255, 0.9);
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background: var(--bg);
-            background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
-            background-size: 30px 30px;
+            background-color: var(--bg);
             color: #2d3436;
+            line-height: 1.6;
             overflow-x: hidden;
+            padding-bottom: 80px; /* لمساحة القائمة السفلية */
         }
 
-        /* Sidebar التفاعلي */
-        .sidebar {
+        /* القائمة الجانبية (للكومبيوتر) والسفلية (للجوال) */
+        .nav-container {
             position: fixed;
-            right: 0; top: 0; height: 100vh;
-            width: 280px;
             background: var(--primary);
-            color: white;
-            padding: 40px 20px;
-            transition: var(--transition);
             z-index: 1000;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+            transition: var(--transition);
         }
 
-        .logo-area {
-            text-align: center;
-            margin-bottom: 50px;
-            animation: fadeInDown 0.8s ease;
+        @media (max-width: 768px) {
+            .nav-container {
+                bottom: 0; left: 0; right: 0;
+                height: 70px;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                border-radius: 20px 20px 0 0;
+                padding: 0 10px;
+            }
+            .nav-item span { font-size: 10px; display: block; }
+            .main-content { margin-right: 0 !important; padding: 20px !important; }
+            .sidebar-header { display: none; }
         }
 
-        .logo-area i {
-            font-size: 50px;
-            color: var(--accent);
-            filter: drop-shadow(0 0 10px rgba(0,184,148,0.5));
+        @media (min-width: 769px) {
+            .nav-container {
+                right: 0; top: 0; bottom: 0;
+                width: 260px;
+                display: flex;
+                flex-direction: column;
+                padding: 40px 20px;
+            }
+            .nav-item { 
+                margin-bottom: 15px; 
+                padding: 15px;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            .main-content { margin-right: 260px; padding: 40px; }
         }
 
-        .nav-menu { list-style: none; }
         .nav-item {
-            padding: 15px 20px;
-            margin-bottom: 10px;
-            border-radius: 15px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            border-radius: 15px;
             transition: var(--transition);
-            opacity: 0.8;
+            text-align: center;
         }
 
-        .nav-item:hover, .nav-item.active {
-            background: rgba(255,255,255,0.1);
-            opacity: 1;
-            transform: translateX(-10px);
-            border-right: 5px solid var(--accent);
+        .nav-item i { font-size: 20px; }
+
+        .nav-item.active {
+            color: var(--white);
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        /* المحتوى الرئيسي */
-        .main-wrapper {
-            margin-right: 280px;
-            padding: 40px;
-            min-height: 100vh;
-            transition: var(--transition);
+        /* صفحات التطبيق */
+        .page {
+            display: none;
+            animation: slideIn 0.4s ease-out forwards;
         }
 
-        header {
+        .page.active { display: block; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* الهيدر المحمول */
+        .mobile-header {
+            background: var(--white);
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
-            animation: fadeIn 1s ease;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 900;
         }
 
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: var(--glass);
-            padding: 10px 20px;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        /* البطاقات الذكية */
-        .grid-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
+        /* بطاقات الإحصائيات */
         .stat-card {
-            background: var(--glass);
-            padding: 30px;
-            border-radius: 25px;
-            box-shadow: var(--card-shadow);
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition);
-            border: 1px solid rgba(255,255,255,0.3);
-            backdrop-filter: blur(10px);
+            background: var(--white);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border-right: 6px solid var(--secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .stat-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        .stat-card i { font-size: 30px; color: var(--secondary); opacity: 0.3; }
+
+        /* الجدول المتجاوب للجوال */
+        .scroll-container {
+            overflow-x: auto;
+            background: var(--white);
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: var(--shadow);
         }
 
-        .stat-card i {
-            position: absolute;
-            left: -10px; bottom: -10px;
-            font-size: 80px;
-            opacity: 0.1;
-            color: var(--primary);
-        }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { text-align: right; padding: 15px; color: #7f8c8d; font-size: 14px; }
+        td { padding: 15px; border-top: 1px solid #f1f2f6; }
 
-        /* الجدول الفاخر */
-        .content-card {
-            background: var(--glass);
-            border-radius: 30px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            animation: fadeInUp 0.8s ease;
-        }
-
-        table { width: 100%; border-collapse: separate; border-spacing: 0 15px; }
-        th { padding: 20px; color: #95a5a6; text-align: right; font-weight: 500; }
-        
-        tr.student-row {
-            background: white;
-            transition: var(--transition);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-        }
-
-        tr.student-row:hover {
-            transform: scale(1.01);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-
-        td { padding: 20px; }
-        td:first-child { border-radius: 0 20px 20px 0; }
-        td:last-child { border-radius: 20px 0 0 20px; }
-
-        /* الأزرار التفاعلية */
-        .btn-fancy {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 50px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(50, 130, 184, 0.3);
-            transition: var(--transition);
-        }
-
-        .btn-fancy:hover {
-            transform: translateY(-3px) rotate(-1deg);
-            box-shadow: 0 15px 30px rgba(50, 130, 184, 0.4);
-        }
-
-        /* الـ Modal الاحترافي */
-        .modal-overlay {
+        .btn-add-float {
             position: fixed;
-            inset: 0; background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            display: none;
-            place-items: center;
-            z-index: 2000;
-        }
-
-        .modal-content {
-            background: white;
-            width: 500px;
-            padding: 40px;
-            border-radius: 30px;
-            position: relative;
-            animation: zoomIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        }
-
-        /* الـ Animations */
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        /* حالة التميز */
-        .badge-star {
-            background: var(--gold);
+            bottom: 90px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
             color: white;
-            padding: 5px 15px;
-            border-radius: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 20px rgba(0,184,148,0.3);
+            font-size: 24px;
+            border: none;
+            cursor: pointer;
+            z-index: 800;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 10px;
             font-size: 12px;
             font-weight: bold;
-            display: inline-block;
-            animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
+        .badge-success { background: #e6fffb; color: #00b894; }
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
-        <div class="logo-area">
-            <i class="fa-solid fa-mosque"></i>
-            <h2 style="margin-top:15px">نظام إتقان</h2>
-            <p style="font-size: 12px; opacity: 0.6;">الجيل القادم لإدارة الحلقات</p>
+    <div class="mobile-header">
+        <h2 style="color: var(--primary); font-weight: 900;">إتقان Pro</h2>
+        <div style="background: #eee; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center;">
+            <i class="fa-solid fa-user"></i>
         </div>
-        <div class="nav-menu">
-            <div class="nav-item active"><i class="fa-solid fa-chart-pie"></i> لوحة التحكم</div>
-            <div class="nav-item"><i class="fa-solid fa-address-book"></i> سجل الطلاب</div>
-            <div class="nav-item"><i class="fa-solid fa-trophy"></i> قائمة المتفوقين</div>
-            <div class="nav-item"><i class="fa-solid fa-file-export"></i> التقارير</div>
+    </div>
+
+    <nav class="nav-container">
+        <div class="sidebar-header" style="text-align: center; margin-bottom: 40px; color: white;">
+            <i class="fa-solid fa-book-quran" style="font-size: 40px; color: var(--gold);"></i>
+            <h3>نظام إتقان</h3>
+        </div>
+        <div class="nav-item active" onclick="switchPage('home', this)">
+            <i class="fa-solid fa-house"></i>
+            <span>الرئيسية</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('students', this)">
+            <i class="fa-solid fa-user-group"></i>
+            <span>سجل الطلاب</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('rankings', this)">
+            <i class="fa-solid fa-trophy"></i>
+            <span>المتفوقين</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('reports', this)">
+            <i class="fa-solid fa-file-invoice"></i>
+            <span>التقارير</span>
         </div>
     </nav>
 
-    <div class="main-wrapper">
-        <header>
-            <div class="welcome">
-                <h1 style="font-weight: 900; color: var(--primary);">أهلاً بك، أستاذ الحلقة 👋</h1>
-                <p id="dateDisplay" style="color: #7f8c8d;"></p>
-            </div>
-            <div class="user-profile">
-                <span>المشرف العام</span>
-                <img src="https://ui-avatars.com/api/?name=Admin&background=0f4c75&color=fff" style="width:40px; border-radius:50%">
-            </div>
-        </header>
-
-        <div class="grid-stats">
+    <div class="main-content">
+        <section id="home" class="page active">
+            <h3 style="margin-bottom: 20px;">نظرة عامة</h3>
             <div class="stat-card">
-                <i class="fa-solid fa-user-graduate"></i>
-                <h3>إجمالي الطلاب</h3>
-                <div style="font-size: 40px; font-weight: 900; color: var(--primary);" id="totalCount">0</div>
+                <div>
+                    <p style="color: #7f8c8d;">طلاب الحلقة</p>
+                    <h2 id="totalCount">0</h2>
+                </div>
+                <i class="fa-solid fa-users"></i>
             </div>
-            <div class="stat-card" style="border-right: 5px solid var(--gold);">
+            <div class="stat-card" style="border-right-color: var(--gold);">
+                <div>
+                    <p style="color: #7f8c8d;">نجم الشهر</p>
+                    <h2 style="font-size: 18px;">عبدالرحمن محمد</h2>
+                </div>
                 <i class="fa-solid fa-crown"></i>
-                <h3>طالب الأسبوع</h3>
-                <div style="font-size: 20px; font-weight: 700; color: #d35400;" id="topStudent">نواف العتيبي</div>
-                <span class="badge-star">الأعلى حفظاً</span>
             </div>
-            <div class="stat-card">
-                <i class="fa-solid fa-chart-line"></i>
-                <h3>نسبة الحفظ العامة</h3>
-                <div style="font-size: 35px; font-weight: 900; color: var(--accent);">92%</div>
-            </div>
-        </div>
+        </section>
 
-        <div class="content-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h2 style="font-weight: 800;">سجل المتابعة اليومي</h2>
-                <button class="btn-fancy" onclick="showModal()">
-                    <i class="fa-solid fa-plus-circle"></i> إضافة طالب جديد
-                </button>
+        <section id="students" class="page">
+            <h3 style="margin-bottom: 20px;">سجل الطلاب والمتابعة</h3>
+            <div class="scroll-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الطالب</th>
+                            <th>الحفظ</th>
+                            <th>أداء اليوم</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTable">
+                        </tbody>
+                </table>
             </div>
+        </section>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>اسم الطالب</th>
-                        <th>المسار الحالي</th>
-                        <th>آخر إنجاز</th>
-                        <th>الحالة</th>
-                        <th>العمليات</th>
-                    </tr>
-                </thead>
-                <tbody id="studentBody">
-                    </tbody>
-            </table>
-        </div>
+        <section id="rankings" class="page">
+            <h3 style="margin-bottom: 20px;">لوحة الشرف</h3>
+            <div style="background: white; padding: 20px; border-radius: 20px; text-align: center;">
+                <i class="fa-solid fa-medal" style="font-size: 50px; color: var(--gold);"></i>
+                <p style="margin-top: 15px;">سيتم عرض أفضل الطلاب بناءً على نقاط التقييم اليومي.</p>
+            </div>
+        </section>
+
+        <section id="reports" class="page">
+            <h3 style="margin-bottom: 20px;">تقارير الأداء</h3>
+            <div style="background: white; padding: 20px; border-radius: 20px;">
+                <p>قسم مخصص لاستخراج تقارير الطلاب الشهرية وإرسالها لأولياء الأمور.</p>
+            </div>
+        </section>
     </div>
 
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-content">
-            <h2 style="margin-bottom: 25px; text-align: center;">بيانات الطالب الجديد</h2>
-            <input type="text" id="nameInput" placeholder="الاسم الكامل" style="width: 100%; padding: 15px; border-radius: 15px; border: 2px solid #eee; margin-bottom: 15px; font-family: 'Cairo';">
-            <select id="levelInput" style="width: 100%; padding: 15px; border-radius: 15px; border: 2px solid #eee; margin-bottom: 20px; font-family: 'Cairo';">
-                <option>جزء عم</option>
-                <option>جزء تبارك</option>
-                <option>حفظ القرآن كاملاً</option>
-            </select>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-fancy" style="flex: 2;" onclick="addNewStudent()">تأكيد الإضافة</button>
-                <button class="btn-fancy" style="flex: 1; background: #e74c3c;" onclick="closeModal()">إلغاء</button>
-            </div>
-        </div>
-    </div>
+    <button class="btn-add-float" onclick="addStudentPrompt()">
+        <i class="fa-solid fa-plus"></i>
+    </button>
 
     <script>
-        // تحديث التاريخ تلقائياً
-        document.getElementById('dateDisplay').innerText = new Intl.DateTimeFormat('ar-SA', { 
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-        }).format(new Date());
+        // نظام التنقل بين الصفحات
+        function switchPage(pageId, element) {
+            // إخفاء كل الصفحات
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            // إظهار الصفحة المطلوبة
+            document.getElementById(pageId).classList.add('active');
+            
+            // تحديث حالة الأزرار في القائمة
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            element.classList.add('active');
 
-        let studentsDB = JSON.parse(localStorage.getItem('itqan_pro_db')) || [
-            {id: 1, name: 'عبدالله السعدون', level: 'جزء عم', achievement: 'سورة النبأ', status: 'ممتاز'},
-            {id: 2, name: 'سلطان القحطاني', level: 'جزء تبارك', achievement: 'سورة الملك', status: 'جيد جداً'}
-        ];
+            // اهتزاز خفيف للجوال عند التنقل (إذا كان يدعم)
+            if (window.navigator.vibrate) window.navigator.vibrate(10);
+        }
 
-        function showModal() { document.getElementById('modalOverlay').style.display = 'grid'; }
-        function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
+        let db = JSON.parse(localStorage.getItem('itqan_v3')) || [];
 
-        function addNewStudent() {
-            const name = document.getElementById('nameInput').value;
-            const level = document.getElementById('levelInput').value;
+        function addStudentPrompt() {
+            const name = prompt("أدخل اسم الطالب الجديد:");
             if(name) {
-                studentsDB.push({
-                    id: Date.now(),
-                    name: name,
-                    level: level,
-                    achievement: 'لم يبدأ',
-                    status: 'مستجد'
-                });
-                saveAndRender();
-                closeModal();
+                db.push({ id: Date.now(), name: name, last: 'لم يبدأ', score: 'ممتاز' });
+                updateUI();
             }
         }
 
-        function saveAndRender() {
-            localStorage.setItem('itqan_pro_db', JSON.stringify(studentsDB));
-            renderTable();
+        function updateUI() {
+            localStorage.setItem('itqan_v3', JSON.stringify(db));
+            const table = document.getElementById('studentTable');
+            const total = document.getElementById('totalCount');
+            
+            total.innerText = db.length;
+            table.innerHTML = db.map(s => `
+                <tr>
+                    <td><b>${s.name}</b></td>
+                    <td style="color:var(--secondary)">${s.last}</td>
+                    <td><span class="badge badge-success">${s.score}</span></td>
+                </tr>
+            `).join('');
         }
 
-        function renderTable() {
-            const container = document.getElementById('studentBody');
-            container.innerHTML = '';
-            document.getElementById('totalCount').innerText = studentsDB.length;
-
-            studentsDB.forEach((s, index) => {
-                setTimeout(() => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'student-row';
-                    tr.style.animation = 'fadeInUp 0.5s ease forwards';
-                    tr.innerHTML = `
-                        <td style="font-weight: 700;">${s.name}</td>
-                        <td><span style="color:var(--secondary)">${s.level}</span></td>
-                        <td>${s.achievement}</td>
-                        <td><span class="badge-star" style="background:var(--accent); animation:none;">${s.status}</span></td>
-                        <td>
-                            <button onclick="updateStatus(${s.id})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:18px;"><i class="fa-solid fa-pen-nib"></i></button>
-                            <button onclick="deleteStudent(${s.id})" style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:18px; margin-right:15px;"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                    `;
-                    container.appendChild(tr);
-                }, index * 100);
-            });
-        }
-
-        function updateStatus(id) {
-            const progress = prompt("ما هو الإنجاز الجديد للطالب؟");
-            if(progress) {
-                const s = studentsDB.find(st => st.id === id);
-                s.achievement = progress;
-                saveAndRender();
-            }
-        }
-
-        function deleteStudent(id) {
-            if(confirm("هل تريد إزالة الطالب من السجل؟")) {
-                studentsDB = studentsDB.filter(st => st.id !== id);
-                saveAndRender();
-            }
-        }
-
-        // بدء التشغيل
-        renderTable();
+        // تشغيل أولي
+        updateUI();
     </script>
 </body>
 </html>
